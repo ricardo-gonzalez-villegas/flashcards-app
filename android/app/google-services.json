@@ -29,6 +29,13 @@
             {
               "client_id": "1003406536692-skpocmhu91f2qeitcu0r9sbtkrot5aku.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1003406536692-bd6d0drk6j4q0afitbl6qr7i834no6p9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flashcardsApp"
+              }
             }
           ]
         }
