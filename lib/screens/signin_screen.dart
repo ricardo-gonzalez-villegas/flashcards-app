@@ -1,3 +1,5 @@
+import 'package:flashcards_app/screens/home_screen.dart';
+import 'package:flashcards_app/screens/signup_screen.dart';
 import 'package:flashcards_app/widgets/reuseable_widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -21,10 +23,34 @@ class _SignInScreenState extends State<SignInScreen> {
             reusableTextField(
                 "Enter Username", Icons.person, false, _emailController),
             reusableTextField(
-                "Enter Password", Icons.lock, true, _passwordController)
+                "Enter Password", Icons.lock, true, _passwordController),
+            signInSignUpButton(context, true, () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const HomeScreen()));
+            }),
+            signUpOption(context),
           ],
         ),
       ),
     );
   }
+}
+
+Row signUpOption(BuildContext context) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      const Text('Dont have an account? '),
+      GestureDetector(
+        onTap: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const SignUpScreen()));
+        },
+        child: const Text(
+          'Sign Up',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      )
+    ],
+  );
 }

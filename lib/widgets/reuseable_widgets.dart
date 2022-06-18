@@ -10,12 +10,25 @@ TextField reusableTextField(String text, IconData icon, bool isPassword,
     decoration: InputDecoration(
       prefixIcon: Icon(icon),
       labelText: text,
-      labelStyle: TextStyle(color: Colors.white.withOpacity(0.9)),
       filled: true,
       floatingLabelBehavior: FloatingLabelBehavior.never,
-      fillColor: Colors.white.withOpacity(0.3),
     ),
     keyboardType:
         isPassword ? TextInputType.visiblePassword : TextInputType.emailAddress,
+  );
+}
+
+Container signInSignUpButton(
+    BuildContext context, bool isSignIn, Function onTap) {
+  return Container(
+    width: MediaQuery.of(context).size.width,
+    height: 50,
+    margin: const EdgeInsets.fromLTRB(0, 10, 0, 20),
+    child: ElevatedButton(
+      onPressed: () {
+        onTap();
+      },
+      child: Text(isSignIn ? 'Sign In' : 'Sign Up'),
+    ),
   );
 }
