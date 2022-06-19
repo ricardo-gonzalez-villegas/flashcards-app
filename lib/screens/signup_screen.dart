@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashcards_app/screens/home_screen.dart';
 import 'package:flashcards_app/widgets/reuseable_widgets.dart';
 import 'package:flutter/material.dart';
@@ -30,10 +31,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
               "Enter Email", Icons.email, false, _emailController),
           reusableTextField(
               "Enter Password", Icons.lock, true, _passwordController),
-          signInSignUpButton(context, false, () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const HomeScreen()));
-          })
+          signInSignUpButton(
+            context,
+            false,
+            () {
+              FirebaseAuth.instance
+                  .createUserWithEmailAndPassword(
+                      email: _emailController.text,
+                      password: _passwordController.text)
+                  .then(
+                (value) {
+                  print("Sucessfully Created");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HomeScreen(),
+                    ),
+                  );
+                },
+              ).onError((error, stackTrace) {
+                print("Error ${error.toString()}");
+              });
+            },
+          )
         ]),
       ),
     );

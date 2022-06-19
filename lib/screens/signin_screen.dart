@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashcards_app/screens/home_screen.dart';
 import 'package:flashcards_app/screens/signup_screen.dart';
 import 'package:flashcards_app/widgets/reuseable_widgets.dart';
@@ -25,8 +26,19 @@ class _SignInScreenState extends State<SignInScreen> {
             reusableTextField(
                 "Enter Password", Icons.lock, true, _passwordController),
             signInSignUpButton(context, true, () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()));
+              FirebaseAuth.instance
+                  .signInWithEmailAndPassword(
+                      email: _emailController.text,
+                      password: _passwordController.text)
+                  .then((value) {
+                print("Signed In");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                );
+              }).onError((error, stackTrace) {
+                print("Error ${error.toString()}");
+              });
             }),
             signUpOption(context),
           ],
@@ -43,8 +55,10 @@ Row signUpOption(BuildContext context) {
       const Text('Dont have an account? '),
       GestureDetector(
         onTap: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const SignUpScreen()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const SignUpScreen()),
+          );
         },
         child: const Text(
           'Sign Up',
