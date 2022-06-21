@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flashcards_app/screens/home_screen.dart';
 import 'package:flashcards_app/widgets/reuseable_widgets.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -14,6 +16,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final CollectionReference _usersCollection =
+      FirebaseFirestore.instance.collection("users");
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +45,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       password: _passwordController.text)
                   .then(
                 (value) {
-                  print("Sucessfully Created");
+                  print(value);
+
+                  // _usersCollection
+                  //     .add({"id": "Hello", "username": "Helldfgdf"});
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(

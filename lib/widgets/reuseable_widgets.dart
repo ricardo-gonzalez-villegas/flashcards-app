@@ -11,7 +11,6 @@ TextField reusableTextField(String text, IconData icon, bool isPassword,
       prefixIcon: Icon(icon),
       labelText: text,
       filled: true,
-      floatingLabelBehavior: FloatingLabelBehavior.never,
     ),
     keyboardType:
         isPassword ? TextInputType.visiblePassword : TextInputType.emailAddress,
