@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class CreateFlashcardScreen extends StatefulWidget {
-  CreateFlashcardScreen({Key? key}) : super(key: key);
+  const CreateFlashcardScreen({Key? key}) : super(key: key);
 
   @override
   State<CreateFlashcardScreen> createState() => _CreateFlashcardScreenState();
@@ -14,6 +16,9 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
       TextEditingController();
   final TextEditingController _secondaryLanguageController =
       TextEditingController();
+  final CollectionReference _flashcardsCollection =
+      FirebaseFirestore.instance.collection("flashcards");
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,14 +26,20 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            cardTextField("Target Language", _targetLanguageController),
-            cardTextField("Primary Language", _primaryLanguageController),
-            cardTextField("Secondary Language", _secondaryLanguageController),
+            flashcardTextField("Target Language", _targetLanguageController),
+            flashcardTextField("Primary Language", _primaryLanguageController),
+            flashcardTextField(
+                "Secondary Language", _secondaryLanguageController),
             ElevatedButton(
-                onPressed: () {
-                  print("Flashcard Added");
-                },
-                child: Text("Add")),
+              onPressed: () {
+                _flashcardsCollection.add({
+                  "target_language": _targetLanguageController.text,
+                  "primary_language": _primaryLanguageController.text,
+                  "secondary_language": _secondaryLanguageController.text,
+                });
+              },
+              child: const Text("Add"),
+            ),
           ],
         ),
       ),
@@ -36,7 +47,7 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
   }
 }
 
-TextField cardTextField(String text, TextEditingController controller) {
+TextField flashcardTextField(String text, TextEditingController controller) {
   return TextField(
     controller: controller,
     enableSuggestions: true,

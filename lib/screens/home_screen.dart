@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashcards_app/screens/create_screen.dart';
 import 'package:flashcards_app/screens/signin_screen.dart';
@@ -34,15 +35,16 @@ class _HomeScreenState extends State<HomeScreen> {
             child: const Text('Sign Out'),
           ),
           ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: ((context) => CreateFlashcardScreen()),
-                  ),
-                );
-              },
-              child: const Text("Add Flashcard"))
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: ((context) => const CreateFlashcardScreen()),
+                ),
+              );
+            },
+            child: const Text("Add Flashcard"),
+          ),
         ],
       ),
     );

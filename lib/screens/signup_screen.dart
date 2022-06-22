@@ -1,8 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flashcards_app/screens/home_screen.dart';
 import 'package:flashcards_app/widgets/reuseable_widgets.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -25,7 +24,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         backgroundColor: Colors.blue,
         title: const Text('Return'),
       ),
-      body: Container(
+      body: SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -45,11 +44,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       password: _passwordController.text)
                   .then(
                 (value) {
-                  print(value);
-
-                  // _usersCollection
-                  //     .add({"id": "Hello", "username": "Helldfgdf"});
-
+                  _usersCollection.add({
+                    "id": value.user?.uid,
+                    "username": _usernameController.text,
+                  });
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -57,9 +55,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   );
                 },
-              ).onError((error, stackTrace) {
-                print("Error ${error.toString()}");
-              });
+              );
             },
           )
         ]),
