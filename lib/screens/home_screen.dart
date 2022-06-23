@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flashcards_app/screens/user_collection_screen.dart';
 import 'package:flashcards_app/screens/create_screen.dart';
 import 'package:flashcards_app/screens/signin_screen.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +45,15 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             child: const Text("Add Flashcard"),
           ),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const UserCollectionScreen()),
+                );
+              },
+              child: const Text("View Collection"))
         ],
       ),
     );
