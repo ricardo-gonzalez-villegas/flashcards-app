@@ -11,8 +11,7 @@ class CreateFlashcardScreen extends StatefulWidget {
 }
 
 class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
-  final TextEditingController _targetLanguageController =
-      TextEditingController();
+  final TextEditingController _wordController = TextEditingController();
   final TextEditingController _primaryLanguageController =
       TextEditingController();
   final TextEditingController _secondaryLanguageController =
@@ -27,7 +26,7 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            flashcardTextField("Target Language", _targetLanguageController),
+            flashcardTextField("Word", _wordController),
             flashcardTextField("Primary Language", _primaryLanguageController),
             flashcardTextField(
                 "Secondary Language", _secondaryLanguageController),
@@ -36,11 +35,14 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
                 _flashcardsCollection.add({
                   "id": uuid.v4(),
                   "user_id": FirebaseAuth.instance.currentUser?.uid,
-                  "target_language": _targetLanguageController.text,
-                  "primary_language": _primaryLanguageController.text,
-                  "secondary_language": _secondaryLanguageController.text,
+                  "word": _wordController.text.toUpperCase(),
+                  "primary_language":
+                      _primaryLanguageController.text.toUpperCase(),
+                  "secondary_language":
+                      _secondaryLanguageController.text.toUpperCase(),
                   "times_missed": 0,
                   "times_correct": 0,
+                  "times_studied": 0,
                   "favorite": false
                 });
               },
