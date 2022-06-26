@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,22 +18,58 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
       .where("user_id", isEqualTo: _userId)
       .snapshots();
   String? _filter;
+  String _dropdownValue = "All";
+  final _items = ["All", "Favorites"];
+  Timer? _stoppedTyping;
 
-  void setStreamWithFilter() {
+  void _onChangeHandler() {
+    const duration = Duration(milliseconds: 900); //
+    if (_stoppedTyping != null) {
+      setState(() => _stoppedTyping!.cancel());
+    }
+
+    setState(
+      () => _stoppedTyping = Timer(duration, () {
+        _setStreamWithFilter();
+      }),
+    );
+  }
+
+  void _setStreamWithFilter() {
     setState(() {
-      if (_filter!.isEmpty) {
+      if (_dropdownValue == "All") {
+        if (_filter == null || _filter == "") {
+          _flashcardsStream = FirebaseFirestore.instance
+              .collection("flashcards")
+              .where("user_id", isEqualTo: _userId)
+              .snapshots();
+          return;
+        }
+
         _flashcardsStream = FirebaseFirestore.instance
             .collection("flashcards")
             .where("user_id", isEqualTo: _userId)
+            .where("word", isEqualTo: _filter?.toUpperCase())
             .snapshots();
-        return;
       }
 
-      _flashcardsStream = FirebaseFirestore.instance
-          .collection("flashcards")
-          .where("user_id", isEqualTo: _userId)
-          .where("word", isEqualTo: _filter?.toUpperCase())
-          .snapshots();
+      if (_dropdownValue == "Favorites") {
+        if (_filter == null || _filter == "") {
+          _flashcardsStream = FirebaseFirestore.instance
+              .collection("flashcards")
+              .where("user_id", isEqualTo: _userId)
+              .where("favorite", isEqualTo: true)
+              .snapshots();
+          return;
+        }
+
+        _flashcardsStream = FirebaseFirestore.instance
+            .collection("flashcards")
+            .where("user_id", isEqualTo: _userId)
+            .where("word", isEqualTo: _filter?.toUpperCase())
+            .where("favorite", isEqualTo: true)
+            .snapshots();
+      }
     });
   }
 
@@ -42,19 +79,35 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
       appBar: AppBar(title: const Text("Collection")),
       body: Column(
         children: [
-          TextField(
-            onChanged: (value) {
-              _filter = value;
-              print(_filter);
-              setStreamWithFilter();
-            },
-            enableSuggestions: true,
-            autocorrect: true,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.search),
-              labelText: "Search",
-              filled: true,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  onChanged: (value) {
+                    _filter = value;
+                    _onChangeHandler();
+                  },
+                  enableSuggestions: true,
+                  autocorrect: true,
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.search),
+                    labelText: "Search",
+                    filled: true,
+                  ),
+                ),
+              ),
+              DropdownButton(
+                  value: _dropdownValue,
+                  items: _items.map((String items) {
+                    return DropdownMenuItem(value: items, child: Text(items));
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _dropdownValue = newValue!;
+                    });
+                    _setStreamWithFilter();
+                  })
+            ],
           ),
           UserCollection(
             flashcardsStream: _flashcardsStream,
@@ -84,6 +137,9 @@ class _UserCollectionState extends State<UserCollection> {
           return const Text('Loading');
         }
         List flashcardsList = flashcardSnapshot.data!.docs.toList();
+        if (flashcardsList.isEmpty) {
+          return const Text("Nothing found");
+        }
         return Expanded(
           child: ListView.builder(
             itemCount: flashcardsList.length,
@@ -101,24 +157,3 @@ class _UserCollectionState extends State<UserCollection> {
     );
   }
 }
-
-// Row customSearchBar() {
-//   return Row(
-//     children: [
-//      DropdownButtonFormField(
-//                   value: "Word",                 
-//                   items: <String>['Low', 'Med', 'High']
-//                       .map<DropdownMenuItem<String>>((String value) {
-//                     return DropdownMenuItem<String>(
-//                       value: value,
-//                       child: Text(value),
-//                     );
-//                   }).toList(),
-//                   onChanged: (String? newValue) {
-//                     _priority = newValue!;
-//                   },
-//                 ),
-//       TextField(),
-//     ],
-//   );
-// }

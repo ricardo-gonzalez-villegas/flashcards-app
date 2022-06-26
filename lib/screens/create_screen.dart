@@ -18,6 +18,16 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
       TextEditingController();
   final CollectionReference _flashcardsCollection =
       FirebaseFirestore.instance.collection("flashcards");
+  final FocusNode _focusNode = FocusNode();
+  final _snackBar = const SnackBar(content: Text("Sucessfully Added"));
+
+  void _clearFields() {
+    _wordController.clear();
+    _primaryLanguageController.clear();
+    _secondaryLanguageController.clear();
+    _focusNode.requestFocus();
+  }
+
   @override
   Widget build(BuildContext context) {
     Uuid uuid = const Uuid();
@@ -26,7 +36,17 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            flashcardTextField("Word", _wordController),
+            TextField(
+              focusNode: _focusNode,
+              autofocus: true,
+              controller: _wordController,
+              enableSuggestions: true,
+              autocorrect: true,
+              decoration: const InputDecoration(
+                labelText: "Word",
+                floatingLabelBehavior: FloatingLabelBehavior.never,
+              ),
+            ),
             flashcardTextField("Primary Language", _primaryLanguageController),
             flashcardTextField(
                 "Secondary Language", _secondaryLanguageController),
@@ -44,7 +64,12 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
                   "times_correct": 0,
                   "times_studied": 0,
                   "favorite": false
+                }).then((value) {
+                  _clearFields();
+                  ScaffoldMessenger.of(context).showSnackBar(_snackBar);
                 });
+
+                //add error handling
               },
               child: const Text("Add"),
             ),
