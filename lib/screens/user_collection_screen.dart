@@ -142,18 +142,40 @@ class _UserCollectionState extends State<UserCollection> {
         }
         return Expanded(
           child: ListView.builder(
-            itemCount: flashcardsList.length,
+            itemCount: 1,
+            // itemCount: flashcardsList.length,
             itemBuilder: (context, index) {
               LinkedHashMap<String, dynamic> flashcardData =
                   flashcardsList[index].data();
-              return ListTile(
-                key: UniqueKey(),
-                title: Text(flashcardData["word"]),
-              );
+
+              List test = generateListOfCards(flashcardsList);
+              return test[0];
+              // return ListTile(
+              //   key: UniqueKey(),
+              //   title: Text(flashcardData["word"]),
+              // );
             },
           ),
         );
       },
     );
   }
+}
+
+List<Container> generateListOfCards(List flashcardsList) {
+  int numOfFlashcards = flashcardsList.length;
+  List<Container> flashcardsContList = List.generate(numOfFlashcards, (index) {
+    LinkedHashMap<String, dynamic> flashcardData = flashcardsList[index].data();
+    return miniFlashcard(flashcardData);
+  });
+  return flashcardsContList;
+}
+
+Container miniFlashcard(LinkedHashMap<String, dynamic> flashcardData) {
+  return Container(
+    color: Colors.red,
+    width: 50,
+    height: 50,
+    child: Text(flashcardData["word"]),
+  );
 }

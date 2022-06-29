@@ -82,24 +82,34 @@ class _FlipState extends State<Flip> with SingleTickerProviderStateMixin {
 Container cardFront(String word) {
   return Container(
     decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30.0), color: Colors.white),
+        borderRadius: BorderRadius.circular(30.0),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 39, 38, 38).withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
+          )
+        ]),
     width: 360,
     height: 500,
     child: Column(
       children: [
         Container(
           margin: const EdgeInsets.fromLTRB(0, 30, 0, 0),
-          width: 260,
+          width: 280,
           alignment: Alignment.centerRight,
           child: IconButton(
-              onPressed: () => print("heart pressed"),
+              onPressed: () => print("bookmark pressed"),
+              color: const Color.fromARGB(255, 228, 219, 118),
               icon: const FaIcon(
-                FontAwesomeIcons.heart,
-                size: 50,
+                FontAwesomeIcons.solidBookmark,
+                size: 60,
+                // color: Colors.blue,
               )),
         ),
         Container(
-          margin: const EdgeInsets.fromLTRB(0, 110, 0, 0),
+          margin: const EdgeInsets.fromLTRB(0, 120, 0, 0),
           child: Text(
             word,
             style: TextStyle(
@@ -107,13 +117,6 @@ Container cardFront(String word) {
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
-          ),
-        ),
-        Container(
-          margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-          child: const Text(
-            "けいたいでんわ",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
         ),
       ],
@@ -124,15 +127,31 @@ Container cardFront(String word) {
 Container cardBack() {
   return Container(
     decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30.0), color: Colors.white),
-    width: 320,
-    height: 460,
-    child: Column(children: const [
-      Text(
-        "English",
-        style: TextStyle(color: Colors.black),
-      ),
-      Text("Spanish"),
-    ]),
+        borderRadius: BorderRadius.circular(30.0),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 39, 38, 38).withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
+          )
+        ]),
+    width: 360,
+    height: 500,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: const [
+        Text(
+          "けいたいでんわ",
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          "English",
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+        ),
+        Text("Spanish",
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+      ],
+    ),
   );
 }

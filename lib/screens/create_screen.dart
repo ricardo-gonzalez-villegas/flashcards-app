@@ -68,8 +68,6 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
                   _clearFields();
                   ScaffoldMessenger.of(context).showSnackBar(_snackBar);
                 });
-
-                //add error handling
               },
               child: const Text("Add"),
             ),
