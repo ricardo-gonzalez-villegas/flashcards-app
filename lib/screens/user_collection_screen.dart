@@ -77,42 +77,50 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Collection")),
-      body: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  onChanged: (value) {
-                    _filter = value;
-                    _onChangeHandler();
-                  },
-                  enableSuggestions: true,
-                  autocorrect: true,
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.search),
-                    labelText: "Search",
-                    filled: true,
+      body: Container(
+        color: const Color.fromARGB(255, 228, 88, 88),
+        child: Column(
+          children: [
+            Container(
+              color: Colors.white,
+              width: 340,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged: (value) {
+                        _filter = value;
+                        _onChangeHandler();
+                      },
+                      enableSuggestions: true,
+                      autocorrect: true,
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.search),
+                        labelText: "Search",
+                        filled: true,
+                      ),
+                    ),
                   ),
-                ),
+                  DropdownButton(
+                      value: _dropdownValue,
+                      items: _items.map((String items) {
+                        return DropdownMenuItem(
+                            value: items, child: Text(items));
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _dropdownValue = newValue!;
+                        });
+                        _setStreamWithFilter();
+                      })
+                ],
               ),
-              DropdownButton(
-                  value: _dropdownValue,
-                  items: _items.map((String items) {
-                    return DropdownMenuItem(value: items, child: Text(items));
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _dropdownValue = newValue!;
-                    });
-                    _setStreamWithFilter();
-                  })
-            ],
-          ),
-          UserCollection(
-            flashcardsStream: _flashcardsStream,
-          ),
-        ],
+            ),
+            UserCollection(
+              flashcardsStream: _flashcardsStream,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -129,6 +137,9 @@ class UserCollection extends StatefulWidget {
 class _UserCollectionState extends State<UserCollection> {
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+    final double itemHeight = (size.height - 100) / 3;
+    final double itemWidth = size.width / 2;
     return StreamBuilder<QuerySnapshot>(
       stream: widget.flashcardsStream,
       builder: (BuildContext context,
@@ -144,8 +155,10 @@ class _UserCollectionState extends State<UserCollection> {
         return Expanded(
           child: GridView.builder(
               itemCount: flashcardsList.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: (itemWidth / itemHeight),
+              ),
               itemBuilder: (context, index) {
                 LinkedHashMap<String, dynamic> flashcardData =
                     flashcardsList[index].data();
@@ -157,23 +170,24 @@ class _UserCollectionState extends State<UserCollection> {
   }
 }
 
-List<Container> generateListOfCards(List flashcardsList) {
-  int numOfFlashcards = flashcardsList.length;
-  List<Container> flashcardsContainerList =
-      List.generate(numOfFlashcards, (index) {
-    LinkedHashMap<String, dynamic> flashcardData = flashcardsList[index].data();
-    return miniFlashcard(flashcardData);
-  });
-  return flashcardsContainerList;
-}
-
 Container miniFlashcard(LinkedHashMap<String, dynamic> flashcardData) {
   return Container(
-    margin: const EdgeInsets.all(10),
+    margin: const EdgeInsets.all(8),
+    decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 39, 38, 38).withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
+          )
+        ]),
     key: UniqueKey(),
-    color: Colors.red,
-    width: 100,
-    height: 150,
-    child: Text(flashcardData["word"]),
+    child: Center(
+        child: Text(
+      flashcardData["word"],
+      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+    )),
   );
 }
