@@ -140,22 +140,17 @@ class _UserCollectionState extends State<UserCollection> {
         if (flashcardsList.isEmpty) {
           return const Text("Nothing found");
         }
-        return Expanded(
-          child: ListView.builder(
-            itemCount: 1,
-            // itemCount: flashcardsList.length,
-            itemBuilder: (context, index) {
-              LinkedHashMap<String, dynamic> flashcardData =
-                  flashcardsList[index].data();
 
-              List test = generateListOfCards(flashcardsList);
-              return test[0];
-              // return ListTile(
-              //   key: UniqueKey(),
-              //   title: Text(flashcardData["word"]),
-              // );
-            },
-          ),
+        return Expanded(
+          child: GridView.builder(
+              itemCount: flashcardsList.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3),
+              itemBuilder: (context, index) {
+                LinkedHashMap<String, dynamic> flashcardData =
+                    flashcardsList[index].data();
+                return miniFlashcard(flashcardData);
+              }),
         );
       },
     );
@@ -164,18 +159,21 @@ class _UserCollectionState extends State<UserCollection> {
 
 List<Container> generateListOfCards(List flashcardsList) {
   int numOfFlashcards = flashcardsList.length;
-  List<Container> flashcardsContList = List.generate(numOfFlashcards, (index) {
+  List<Container> flashcardsContainerList =
+      List.generate(numOfFlashcards, (index) {
     LinkedHashMap<String, dynamic> flashcardData = flashcardsList[index].data();
     return miniFlashcard(flashcardData);
   });
-  return flashcardsContList;
+  return flashcardsContainerList;
 }
 
 Container miniFlashcard(LinkedHashMap<String, dynamic> flashcardData) {
   return Container(
+    margin: const EdgeInsets.all(10),
+    key: UniqueKey(),
     color: Colors.red,
-    width: 50,
-    height: 50,
+    width: 100,
+    height: 150,
     child: Text(flashcardData["word"]),
   );
 }
