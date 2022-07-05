@@ -1,23 +1,47 @@
+import 'dart:collection';
 import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flashcards_app/utils/screensize_reducer.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Flashcard extends StatefulWidget {
-  const Flashcard({Key? key}) : super(key: key);
+  const Flashcard({super.key, required this.data});
+  final LinkedHashMap<String, dynamic> data;
 
   @override
   State<Flashcard> createState() => _FlashcardState();
 }
 
 class _FlashcardState extends State<Flashcard> {
+  late bool _favorite = widget.data["favorite"];
+  late final DocumentReference flashcardDoc = FirebaseFirestore.instance
+      .collection("flashcards")
+      .doc(widget.data["document_id"]);
+
+  void _updateFavorite() {
+    setState(() {
+      _favorite = !_favorite;
+    });
+    flashcardDoc.update({"favorite": _favorite});
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Flip();
+    return Flip(
+        front: cardFront(widget.data["word"], _favorite, _updateFavorite),
+        back: cardBack(
+          widget.data["furigana"],
+          widget.data["primary_language"],
+          widget.data["secondary_language"],
+        ));
   }
 }
 
 class Flip extends StatefulWidget {
-  const Flip({Key? key}) : super(key: key);
+  const Flip({super.key, required this.front, required this.back});
+  final Container front;
+  final Container back;
 
   @override
   State<Flip> createState() => _FlipState();
@@ -64,14 +88,14 @@ class _FlipState extends State<Flip> with SingleTickerProviderStateMixin {
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           if (rotation.value < 0.5) ...[
             Transform(
-                transform: Matrix4.rotationY(pi * rotation.value),
+                transform: Matrix4.rotationX(pi * rotation.value),
                 alignment: FractionalOffset.center,
-                child: cardFront("携帯電話")),
+                child: widget.front),
           ] else ...[
             Transform(
-                transform: Matrix4.rotationY(pi * (1 - rotation.value)),
+                transform: Matrix4.rotationX(pi * (1 - rotation.value)),
                 alignment: FractionalOffset.center,
-                child: cardBack())
+                child: widget.back)
           ],
         ]),
       ),
@@ -79,10 +103,10 @@ class _FlipState extends State<Flip> with SingleTickerProviderStateMixin {
   }
 }
 
-Container cardFront(String word) {
+Container cardFront(String word, bool favorite, VoidCallback update) {
   return Container(
     decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30.0),
+        borderRadius: BorderRadius.circular(15.0),
         color: Colors.white,
         boxShadow: [
           BoxShadow(
@@ -91,25 +115,27 @@ Container cardFront(String word) {
             blurRadius: 5,
           )
         ]),
-    width: 360,
-    height: 500,
+    width: 400,
+    height: 300,
     child: Column(
       children: [
         Container(
           margin: const EdgeInsets.fromLTRB(0, 30, 0, 0),
-          width: 280,
+          width: 350,
           alignment: Alignment.centerRight,
           child: IconButton(
-              onPressed: () => print("bookmark pressed"),
-              color: const Color.fromARGB(255, 228, 219, 118),
+              onPressed: () => update(),
+              color: favorite
+                  ? const Color.fromARGB(255, 228, 219, 118)
+                  : const Color.fromARGB(255, 194, 194, 194),
               icon: const FaIcon(
                 FontAwesomeIcons.solidBookmark,
-                size: 60,
+                size: 50,
                 // color: Colors.blue,
               )),
         ),
         Container(
-          margin: const EdgeInsets.fromLTRB(0, 120, 0, 0),
+          margin: const EdgeInsets.fromLTRB(0, 50, 0, 0),
           child: Text(
             word,
             style: TextStyle(
@@ -124,10 +150,14 @@ Container cardFront(String word) {
   );
 }
 
-Container cardBack() {
+Container cardBack(
+  String? furigana,
+  String primary,
+  String secondary,
+) {
   return Container(
     decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30.0),
+        borderRadius: BorderRadius.circular(15.0),
         color: Colors.white,
         boxShadow: [
           BoxShadow(
@@ -136,22 +166,74 @@ Container cardBack() {
             blurRadius: 5,
           )
         ]),
-    width: 360,
-    height: 500,
+    width: 400,
+    height: 300,
     child: Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: const [
+      children: [
         Text(
-          "けいたいでんわ",
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          furigana ?? "",
+          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
         ),
         Text(
-          "English",
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          primary,
+          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
         ),
-        Text("Spanish",
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+        Text(secondary,
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
       ],
     ),
   );
+}
+
+class MyWidget extends StatelessWidget {
+  const MyWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    Container(
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15.0),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 39, 38, 38).withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 5,
+            )
+          ]),
+      width: 400,
+      height: 300,
+      child: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.fromLTRB(0, 30, 0, 0),
+            width: 350,
+            alignment: Alignment.centerRight,
+            child: IconButton(
+                onPressed: () => update(),
+                color: favorite
+                    ? const Color.fromARGB(255, 228, 219, 118)
+                    : const Color.fromARGB(255, 194, 194, 194),
+                icon: const FaIcon(
+                  FontAwesomeIcons.solidBookmark,
+                  size: 50,
+                  // color: Colors.blue,
+                )),
+          ),
+          Container(
+            margin: const EdgeInsets.fromLTRB(0, 50, 0, 0),
+            child: Text(
+              word,
+              style: TextStyle(
+                fontSize: word.length > 4 ? 50 : 60,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

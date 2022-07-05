@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flashcards_app/screens/flashcard_info_screen.dart';
 import 'package:flutter/material.dart';
+import '../widgets/mini_flashcard.dart';
 
 class UserCollectionScreen extends StatefulWidget {
   const UserCollectionScreen({Key? key}) : super(key: key);
@@ -82,6 +84,7 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
         child: Column(
           children: [
             Container(
+              margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
               color: Colors.white,
               width: 340,
               child: Row(
@@ -102,17 +105,17 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
                     ),
                   ),
                   DropdownButton(
-                      value: _dropdownValue,
-                      items: _items.map((String items) {
-                        return DropdownMenuItem(
-                            value: items, child: Text(items));
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _dropdownValue = newValue!;
-                        });
-                        _setStreamWithFilter();
-                      })
+                    value: _dropdownValue,
+                    items: _items.map((String items) {
+                      return DropdownMenuItem(value: items, child: Text(items));
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _dropdownValue = newValue!;
+                      });
+                      _setStreamWithFilter();
+                    },
+                  )
                 ],
               ),
             ),
@@ -157,37 +160,23 @@ class _UserCollectionState extends State<UserCollection> {
               itemCount: flashcardsList.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
-                childAspectRatio: (itemWidth / itemHeight),
+                childAspectRatio: (itemHeight / itemWidth),
               ),
               itemBuilder: (context, index) {
                 LinkedHashMap<String, dynamic> flashcardData =
                     flashcardsList[index].data();
-                return miniFlashcard(flashcardData);
+                return GestureDetector(
+                    onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                FlashcardInfo(data: flashcardData),
+                          ),
+                        ),
+                    child: miniFlashcard(flashcardData));
               }),
         );
       },
     );
   }
-}
-
-Container miniFlashcard(LinkedHashMap<String, dynamic> flashcardData) {
-  return Container(
-    margin: const EdgeInsets.all(8),
-    decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 39, 38, 38).withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-          )
-        ]),
-    key: UniqueKey(),
-    child: Center(
-        child: Text(
-      flashcardData["word"],
-      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-    )),
-  );
 }
