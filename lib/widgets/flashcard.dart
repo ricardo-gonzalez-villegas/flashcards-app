@@ -29,19 +29,19 @@ class _FlashcardState extends State<Flashcard> {
   @override
   Widget build(BuildContext context) {
     return Flip(
-        front: cardFront(widget.data["word"], _favorite, _updateFavorite),
-        back: cardBack(
-          widget.data["furigana"],
-          widget.data["primary_language"],
-          widget.data["secondary_language"],
-        ));
+        front: CardFront(
+          word: widget.data["word"],
+          favorite: _favorite,
+          update: _updateFavorite,
+        ),
+        back: CardBack(description: widget.data["description"]));
   }
 }
 
 class Flip extends StatefulWidget {
   const Flip({super.key, required this.front, required this.back});
-  final Container front;
-  final Container back;
+  final Widget front;
+  final Widget back;
 
   @override
   State<Flip> createState() => _FlipState();
@@ -81,8 +81,8 @@ class _FlipState extends State<Flip> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: double.infinity,
-      width: double.infinity,
+      height: 300,
+      width: screenWidth(context),
       child: GestureDetector(
         onTap: () => flipCard(),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -103,95 +103,19 @@ class _FlipState extends State<Flip> with SingleTickerProviderStateMixin {
   }
 }
 
-Container cardFront(String word, bool favorite, VoidCallback update) {
-  return Container(
-    decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.0),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 39, 38, 38).withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-          )
-        ]),
-    width: 400,
-    height: 300,
-    child: Column(
-      children: [
-        Container(
-          margin: const EdgeInsets.fromLTRB(0, 30, 0, 0),
-          width: 350,
-          alignment: Alignment.centerRight,
-          child: IconButton(
-              onPressed: () => update(),
-              color: favorite
-                  ? const Color.fromARGB(255, 228, 219, 118)
-                  : const Color.fromARGB(255, 194, 194, 194),
-              icon: const FaIcon(
-                FontAwesomeIcons.solidBookmark,
-                size: 50,
-                // color: Colors.blue,
-              )),
-        ),
-        Container(
-          margin: const EdgeInsets.fromLTRB(0, 50, 0, 0),
-          child: Text(
-            word,
-            style: TextStyle(
-              fontSize: word.length > 4 ? 50 : 60,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-Container cardBack(
-  String? furigana,
-  String primary,
-  String secondary,
-) {
-  return Container(
-    decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.0),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 39, 38, 38).withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-          )
-        ]),
-    width: 400,
-    height: 300,
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Text(
-          furigana ?? "",
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-        ),
-        Text(
-          primary,
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-        ),
-        Text(secondary,
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-      ],
-    ),
-  );
-}
-
-class MyWidget extends StatelessWidget {
-  const MyWidget({Key? key}) : super(key: key);
+class CardFront extends StatelessWidget {
+  const CardFront(
+      {super.key,
+      required this.word,
+      required this.favorite,
+      required this.update});
+  final String word;
+  final bool favorite;
+  final VoidCallback update;
 
   @override
   Widget build(BuildContext context) {
-    Container(
+    return Container(
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15.0),
           color: Colors.white,
@@ -202,7 +126,7 @@ class MyWidget extends StatelessWidget {
               blurRadius: 5,
             )
           ]),
-      width: 400,
+      width: screenWidth(context, reducedBy: 20.0),
       height: 300,
       child: Column(
         children: [
@@ -222,17 +146,47 @@ class MyWidget extends StatelessWidget {
                 )),
           ),
           Container(
-            margin: const EdgeInsets.fromLTRB(0, 50, 0, 0),
+            margin: const EdgeInsets.fromLTRB(0, 60, 0, 0),
             child: Text(
               word,
               style: TextStyle(
-                fontSize: word.length > 4 ? 50 : 60,
+                fontSize: word.length > 8 ? 40 : 50,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class CardBack extends StatelessWidget {
+  const CardBack({super.key, required this.description});
+  final String description;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15.0),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 39, 38, 38).withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 5,
+            )
+          ]),
+      width: screenWidth(context, reducedBy: 20.0),
+      height: 300,
+      child: Container(
+        margin: const EdgeInsets.all(20),
+        child: Center(
+          child: Text(description,
+              style:
+                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        ),
       ),
     );
   }

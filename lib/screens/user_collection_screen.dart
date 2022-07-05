@@ -3,7 +3,10 @@ import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashcards_app/screens/flashcard_info_screen.dart';
+import 'package:flashcards_app/screens/home_screen.dart';
+import 'package:flashcards_app/utils/screensize_reducer.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../widgets/mini_flashcard.dart';
 
 class UserCollectionScreen extends StatefulWidget {
@@ -25,7 +28,7 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
   Timer? _stoppedTyping;
 
   void _onChangeHandler() {
-    const duration = Duration(milliseconds: 900); //
+    const duration = Duration(milliseconds: 1000); //
     if (_stoppedTyping != null) {
       setState(() => _stoppedTyping!.cancel());
     }
@@ -48,11 +51,20 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
           return;
         }
 
-        _flashcardsStream = FirebaseFirestore.instance
-            .collection("flashcards")
-            .where("user_id", isEqualTo: _userId)
-            .where("word", isEqualTo: _filter?.toUpperCase())
-            .snapshots();
+        if (_filter!.startsWith('#') == true) {
+          String tagFilter = _filter!.substring(1);
+          _flashcardsStream = FirebaseFirestore.instance
+              .collection("flashcards")
+              .where("user_id", isEqualTo: _userId)
+              .where("tags",
+                  arrayContains: [tagFilter.toUpperCase()]).snapshots();
+        } else {
+          _flashcardsStream = FirebaseFirestore.instance
+              .collection("flashcards")
+              .where("user_id", isEqualTo: _userId)
+              .where("word", isEqualTo: _filter?.toUpperCase())
+              .snapshots();
+        }
       }
 
       if (_dropdownValue == "Favorites") {
@@ -65,12 +77,22 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
           return;
         }
 
-        _flashcardsStream = FirebaseFirestore.instance
-            .collection("flashcards")
-            .where("user_id", isEqualTo: _userId)
-            .where("word", isEqualTo: _filter?.toUpperCase())
-            .where("favorite", isEqualTo: true)
-            .snapshots();
+        if (_filter!.startsWith('#') == true) {
+          String tagFilter = _filter!.substring(1);
+          _flashcardsStream = FirebaseFirestore.instance
+              .collection("flashcards")
+              .where("user_id", isEqualTo: _userId)
+              .where("tags", arrayContains: tagFilter.toUpperCase())
+              .where("favorite", isEqualTo: true)
+              .snapshots();
+        } else {
+          _flashcardsStream = FirebaseFirestore.instance
+              .collection("flashcards")
+              .where("user_id", isEqualTo: _userId)
+              .where("word", isEqualTo: _filter?.toUpperCase())
+              .where("favorite", isEqualTo: true)
+              .snapshots();
+        }
       }
     });
   }
@@ -78,15 +100,33 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Collection")),
-      body: Container(
-        color: const Color.fromARGB(255, 228, 88, 88),
+      backgroundColor: const Color.fromARGB(255, 84, 132, 235),
+      appBar: AppBar(
+        leading: IconButton(
+            icon: const FaIcon(FontAwesomeIcons.houseChimneyUser),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomeScreen(),
+                ),
+              );
+            }),
+        title: const Text("Collection"),
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+      ),
+      body: SizedBox(
+        width: screenWidth(context),
         child: Column(
           children: [
             Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30.0),
+                color: Colors.white,
+              ),
               margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-              color: Colors.white,
-              width: 340,
+              width: 360,
               child: Row(
                 children: [
                   Expanded(
@@ -119,6 +159,10 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
                 ],
               ),
             ),
+            const Text(
+              "Total Results",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
             UserCollection(
               flashcardsStream: _flashcardsStream,
             ),
@@ -140,9 +184,8 @@ class UserCollection extends StatefulWidget {
 class _UserCollectionState extends State<UserCollection> {
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
-    final double itemHeight = (size.height - 100) / 3;
-    final double itemWidth = size.width / 2;
+    final double itemHeight = (screenHeight(context) - 100) / 3;
+    final double itemWidth = screenWidth(context) / 2;
     return StreamBuilder<QuerySnapshot>(
       stream: widget.flashcardsStream,
       builder: (BuildContext context,

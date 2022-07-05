@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 
 Container miniFlashcard(LinkedHashMap<String, dynamic> flashcardData) {
+  String word = flashcardData["word"];
   return Container(
     margin: const EdgeInsets.all(3),
     decoration: BoxDecoration(
@@ -17,9 +18,9 @@ Container miniFlashcard(LinkedHashMap<String, dynamic> flashcardData) {
     key: UniqueKey(),
     child: Center(
       child: Text(
-        flashcardData["word"],
-        style: const TextStyle(
-          fontSize: 20,
+        word,
+        style: TextStyle(
+          fontSize: word.length > 10 ? 14 : 20,
           fontWeight: FontWeight.bold,
         ),
       ),

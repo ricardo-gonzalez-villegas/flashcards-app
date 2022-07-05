@@ -17,32 +17,30 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            reusableTextField(
-                "Enter Username", Icons.person, false, _emailController),
-            reusableTextField(
-                "Enter Password", Icons.lock, true, _passwordController),
-            signInSignUpButton(context, true, () {
-              FirebaseAuth.instance
-                  .signInWithEmailAndPassword(
-                      email: _emailController.text,
-                      password: _passwordController.text)
-                  .then((value) {
-                print("Signed In");
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                );
-              }).onError((error, stackTrace) {
-                print("Error ${error.toString()}");
-              });
-            }),
-            signUpOption(context),
-          ],
-        ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          reusableTextField(
+              "Enter Username", Icons.person, false, _emailController),
+          reusableTextField(
+              "Enter Password", Icons.lock, true, _passwordController),
+          signInSignUpButton(context, true, () {
+            FirebaseAuth.instance
+                .signInWithEmailAndPassword(
+                    email: _emailController.text,
+                    password: _passwordController.text)
+                .then((value) {
+              print("Signed In");
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+              );
+            }).onError((error, stackTrace) {
+              print("Error ${error.toString()}");
+            });
+          }),
+          signUpOption(context),
+        ],
       ),
     );
   }

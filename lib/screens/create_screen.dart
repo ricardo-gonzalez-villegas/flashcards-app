@@ -11,80 +11,96 @@ class CreateFlashcardScreen extends StatefulWidget {
 
 class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
   final TextEditingController _wordController = TextEditingController();
-  final TextEditingController _primaryLanguageController =
-      TextEditingController();
-  final TextEditingController _secondaryLanguageController =
-      TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _tagsController = TextEditingController();
   final CollectionReference _flashcardsCollection =
       FirebaseFirestore.instance.collection("flashcards");
   final FocusNode _focusNode = FocusNode();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _snackBar = const SnackBar(content: Text("Sucessfully Added"));
 
   void _clearFields() {
     _wordController.clear();
-    _primaryLanguageController.clear();
-    _secondaryLanguageController.clear();
+    _descriptionController.clear();
+    _tagsController.clear();
     _focusNode.requestFocus();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextField(
-            focusNode: _focusNode,
-            autofocus: true,
-            controller: _wordController,
-            enableSuggestions: true,
-            autocorrect: true,
-            decoration: const InputDecoration(
-              labelText: "Word",
-              floatingLabelBehavior: FloatingLabelBehavior.never,
+      body: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextFormField(
+              focusNode: _focusNode,
+              autofocus: true,
+              controller: _wordController,
+              enableSuggestions: true,
+              autocorrect: true,
+              validator: ((value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter text.';
+                }
+                return null;
+              }),
+              decoration: const InputDecoration(
+                labelText: "Word",
+                floatingLabelBehavior: FloatingLabelBehavior.never,
+              ),
             ),
-          ),
-          flashcardTextField("Primary Language", _primaryLanguageController),
-          flashcardTextField(
-              "Secondary Language", _secondaryLanguageController),
-          ElevatedButton(
-            onPressed: () {
-              _flashcardsCollection.add({
-                "user_id": FirebaseAuth.instance.currentUser?.uid,
-                "word": _wordController.text.toUpperCase(),
-                "primary_language":
-                    _primaryLanguageController.text.toUpperCase(),
-                "secondary_language":
-                    _secondaryLanguageController.text.toUpperCase(),
-                "times_missed": 0,
-                "times_correct": 0,
-                "times_studied": 0,
-                "favorite": false
-              }).then((value) {
-                DocumentReference doc = FirebaseFirestore.instance
-                    .collection("flashcards")
-                    .doc(value.id);
-                doc.update({"document_id": value.id});
-                _clearFields();
-                ScaffoldMessenger.of(context).showSnackBar(_snackBar);
-              });
-            },
-            child: const Text("Add"),
-          ),
-        ],
+            Container(
+              margin: EdgeInsets.all(40),
+              child: TextFormField(
+                  controller: _descriptionController,
+                  maxLines: 8,
+                  maxLength: 300,
+                  validator: ((value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter text.';
+                    }
+                    return null;
+                  }),
+                  decoration: const InputDecoration(
+                    labelText: "Description",
+                    floatingLabelBehavior: FloatingLabelBehavior.never,
+                  )),
+            ),
+            TextFormField(
+                controller: _tagsController,
+                decoration: const InputDecoration(
+                  labelText: "Tags",
+                  floatingLabelBehavior: FloatingLabelBehavior.never,
+                )),
+            ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  _flashcardsCollection.add({
+                    "user_id": FirebaseAuth.instance.currentUser?.uid,
+                    "word": _wordController.text.toUpperCase(),
+                    "description": _descriptionController.text,
+                    "tags": _tagsController.text.toUpperCase().split(','),
+                    "times_missed": 0,
+                    "times_correct": 0,
+                    "times_studied": 0,
+                    "favorite": false
+                  }).then((value) {
+                    DocumentReference doc = FirebaseFirestore.instance
+                        .collection("flashcards")
+                        .doc(value.id);
+                    doc.update({"document_id": value.id});
+                    _clearFields();
+                    ScaffoldMessenger.of(context).showSnackBar(_snackBar);
+                  });
+                }
+              },
+              child: const Text("Add"),
+            ),
+          ],
+        ),
       ),
     );
   }
-}
-
-TextField flashcardTextField(String text, TextEditingController controller) {
-  return TextField(
-    controller: controller,
-    enableSuggestions: true,
-    autocorrect: true,
-    decoration: InputDecoration(
-      labelText: text,
-      floatingLabelBehavior: FloatingLabelBehavior.never,
-    ),
-  );
 }
