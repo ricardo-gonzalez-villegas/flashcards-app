@@ -6,6 +6,7 @@ import 'package:flashcards_app/screens/flashcard_info_screen.dart';
 import 'package:flashcards_app/screens/home_screen.dart';
 import 'package:flashcards_app/utils/screensize_reducer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../widgets/mini_flashcard.dart';
 
@@ -56,8 +57,8 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
           _flashcardsStream = FirebaseFirestore.instance
               .collection("flashcards")
               .where("user_id", isEqualTo: _userId)
-              .where("tags",
-                  arrayContains: [tagFilter.toUpperCase()]).snapshots();
+              .where("tags", arrayContains: tagFilter.toUpperCase())
+              .snapshots();
         } else {
           _flashcardsStream = FirebaseFirestore.instance
               .collection("flashcards")
@@ -159,10 +160,6 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
                 ],
               ),
             ),
-            const Text(
-              "Total Results",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
             UserCollection(
               flashcardsStream: _flashcardsStream,
             ),
@@ -177,6 +174,7 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
 class UserCollection extends StatefulWidget {
   UserCollection({super.key, required this.flashcardsStream});
   Stream<QuerySnapshot> flashcardsStream;
+
   @override
   State<UserCollection> createState() => _UserCollectionState();
 }
@@ -199,25 +197,31 @@ class _UserCollectionState extends State<UserCollection> {
         }
 
         return Expanded(
-          child: GridView.builder(
-              itemCount: flashcardsList.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: (itemHeight / itemWidth),
+          child: Column(
+            children: [
+              Expanded(
+                child: GridView.builder(
+                    itemCount: flashcardsList.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      childAspectRatio: (itemHeight / itemWidth),
+                    ),
+                    itemBuilder: (context, index) {
+                      LinkedHashMap<String, dynamic> flashcardData =
+                          flashcardsList[index].data();
+                      return GestureDetector(
+                          onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      FlashcardInfo(data: flashcardData),
+                                ),
+                              ),
+                          child: miniFlashcard(flashcardData));
+                    }),
               ),
-              itemBuilder: (context, index) {
-                LinkedHashMap<String, dynamic> flashcardData =
-                    flashcardsList[index].data();
-                return GestureDetector(
-                    onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                FlashcardInfo(data: flashcardData),
-                          ),
-                        ),
-                    child: miniFlashcard(flashcardData));
-              }),
+            ],
+          ),
         );
       },
     );

@@ -52,7 +52,7 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
               ),
             ),
             Container(
-              margin: EdgeInsets.all(40),
+              margin: const EdgeInsets.all(40),
               child: TextFormField(
                   controller: _descriptionController,
                   maxLines: 8,
@@ -81,7 +81,10 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
                     "user_id": FirebaseAuth.instance.currentUser?.uid,
                     "word": _wordController.text.toUpperCase(),
                     "description": _descriptionController.text,
-                    "tags": _tagsController.text.toUpperCase().split(','),
+                    "tags": _tagsController.text
+                        .toUpperCase()
+                        .replaceAll(RegExp(' '), '')
+                        .split(','),
                     "times_missed": 0,
                     "times_correct": 0,
                     "times_studied": 0,
