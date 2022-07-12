@@ -5,10 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashcards_app/screens/flashcard_info_screen.dart';
 import 'package:flashcards_app/screens/home_screen.dart';
 import 'package:flashcards_app/utils/screensize_reducer.dart';
+import 'package:flashcards_app/widgets/flashcard_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../widgets/mini_flashcard.dart';
 
 class UserCollectionScreen extends StatefulWidget {
   const UserCollectionScreen({Key? key}) : super(key: key);
@@ -128,6 +127,7 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
               ),
               margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
               width: 360,
+              height: 50,
               child: Row(
                 children: [
                   Expanded(
@@ -139,23 +139,35 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
                       enableSuggestions: true,
                       autocorrect: true,
                       decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.search),
-                        labelText: "Search",
-                        filled: true,
-                      ),
+                          prefixIcon: Icon(Icons.search),
+                          labelText: "Search",
+                          filled: true,
+                          border: InputBorder.none),
                     ),
                   ),
-                  DropdownButton(
-                    value: _dropdownValue,
-                    items: _items.map((String items) {
-                      return DropdownMenuItem(value: items, child: Text(items));
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _dropdownValue = newValue!;
-                      });
-                      _setStreamWithFilter();
-                    },
+                  Container(
+                    padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    decoration: const BoxDecoration(
+                        color: Color.fromARGB(150, 72, 117, 181),
+                        borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(30),
+                            bottomRight: Radius.circular(30))),
+                    height: 50,
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton(
+                        value: _dropdownValue,
+                        items: _items.map((String items) {
+                          return DropdownMenuItem(
+                              value: items, child: Text(items));
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _dropdownValue = newValue!;
+                          });
+                          _setStreamWithFilter();
+                        },
+                      ),
+                    ),
                   )
                 ],
               ),
@@ -174,7 +186,6 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
 class UserCollection extends StatefulWidget {
   UserCollection({super.key, required this.flashcardsStream});
   Stream<QuerySnapshot> flashcardsStream;
-
   @override
   State<UserCollection> createState() => _UserCollectionState();
 }
@@ -182,8 +193,6 @@ class UserCollection extends StatefulWidget {
 class _UserCollectionState extends State<UserCollection> {
   @override
   Widget build(BuildContext context) {
-    final double itemHeight = (screenHeight(context) - 100) / 3;
-    final double itemWidth = screenWidth(context) / 2;
     return StreamBuilder<QuerySnapshot>(
       stream: widget.flashcardsStream,
       builder: (BuildContext context,
@@ -200,24 +209,21 @@ class _UserCollectionState extends State<UserCollection> {
           child: Column(
             children: [
               Expanded(
-                child: GridView.builder(
+                child: ListView.builder(
                     itemCount: flashcardsList.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      childAspectRatio: (itemHeight / itemWidth),
-                    ),
                     itemBuilder: (context, index) {
                       LinkedHashMap<String, dynamic> flashcardData =
                           flashcardsList[index].data();
                       return GestureDetector(
-                          onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      FlashcardInfo(data: flashcardData),
-                                ),
-                              ),
-                          child: miniFlashcard(flashcardData));
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                FlashcardInfo(data: flashcardData),
+                          ),
+                        ),
+                        child: FlashcardTile(flashcardData: flashcardData),
+                      );
                     }),
               ),
             ],
