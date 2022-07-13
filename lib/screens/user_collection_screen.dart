@@ -113,6 +113,11 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
               );
             }),
         title: const Text("Collection"),
+        actions: [
+          IconButton(
+              onPressed: () => print("Help"),
+              icon: const FaIcon(FontAwesomeIcons.circleInfo))
+        ],
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
       ),
@@ -122,36 +127,55 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
           children: [
             Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30.0),
-                color: Colors.white,
-              ),
+                  borderRadius: BorderRadius.circular(30.0),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color.fromARGB(255, 39, 38, 38)
+                          .withOpacity(0.5),
+                      spreadRadius: 1,
+                      blurRadius: 3,
+                    )
+                  ]),
               margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
               width: 360,
               height: 50,
               child: Row(
                 children: [
                   Expanded(
-                    child: TextField(
-                      onChanged: (value) {
-                        _filter = value;
-                        _onChangeHandler();
-                      },
-                      enableSuggestions: true,
-                      autocorrect: true,
-                      decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.search),
-                          labelText: "Search",
-                          filled: true,
-                          border: InputBorder.none),
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          right: BorderSide(
+                              width: 1.8,
+                              color: Color.fromARGB(255, 215, 215, 215)),
+                        ),
+                      ),
+                      child: TextField(
+                        onChanged: (value) {
+                          _filter = value;
+                          _onChangeHandler();
+                        },
+                        enableSuggestions: true,
+                        autocorrect: true,
+                        decoration: const InputDecoration(
+                            prefixIcon: Icon(Icons.search),
+                            labelText: "Search",
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            border: InputBorder.none),
+                      ),
                     ),
                   ),
                   Container(
-                    padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                     decoration: const BoxDecoration(
-                        color: Color.fromARGB(150, 72, 117, 181),
-                        borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(30),
-                            bottomRight: Radius.circular(30))),
+                      // color: Color.fromARGB(150, 72, 117, 181),
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(30),
+                        bottomRight: Radius.circular(30),
+                      ),
+                    ),
                     height: 50,
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton(
@@ -198,11 +222,15 @@ class _UserCollectionState extends State<UserCollection> {
       builder: (BuildContext context,
           AsyncSnapshot<QuerySnapshot> flashcardSnapshot) {
         if (flashcardSnapshot.connectionState == ConnectionState.waiting) {
-          return const Text('Loading');
+          return const Text('Loading...',
+              style: TextStyle(fontSize: 17, color: Colors.white));
         }
         List flashcardsList = flashcardSnapshot.data!.docs.toList();
         if (flashcardsList.isEmpty) {
-          return const Text("Nothing found");
+          return const Text(
+            "No results.",
+            style: TextStyle(fontSize: 17, color: Colors.white),
+          );
         }
 
         return Expanded(

@@ -45,21 +45,21 @@ class _FlashcardInfoState extends State<FlashcardInfo> {
                   context: context,
                   builder: (context) {
                     return Container(
-                      height: screenHeight(context) / 4,
-                      color: const Color.fromARGB(255, 84, 132, 235),
+                      height: screenHeight(context) / 3,
+                      color: Colors.white,
                       child: Column(
                         children: [
                           ListTile(
                             leading: const FaIcon(
                               FontAwesomeIcons.pen,
-                              color: Colors.white,
+                              color: Color.fromARGB(255, 138, 138, 138),
                             ),
                             title: const Text(
                               "Edit",
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 18,
-                                  color: Colors.white),
+                                  color: Color.fromARGB(255, 138, 138, 138)),
                             ),
                             onTap: () {
                               Navigator.pop(context);
@@ -74,14 +74,14 @@ class _FlashcardInfoState extends State<FlashcardInfo> {
                           ListTile(
                             leading: const FaIcon(
                               FontAwesomeIcons.trash,
-                              color: Colors.white,
+                              color: Color.fromARGB(255, 138, 138, 138),
                             ),
                             title: const Text(
                               "Delete",
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 18,
-                                  color: Colors.white),
+                                  color: Color.fromARGB(255, 138, 138, 138)),
                             ),
                             onTap: () {
                               Navigator.pop(context);

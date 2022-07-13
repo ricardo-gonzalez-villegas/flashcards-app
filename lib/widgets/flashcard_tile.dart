@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class FlashcardTile extends StatelessWidget {
   const FlashcardTile({super.key, required this.flashcardData});
@@ -19,7 +20,7 @@ class FlashcardTile extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       height: 60,
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -30,23 +31,44 @@ class FlashcardTile extends StatelessWidget {
           ),
         ),
       ),
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Row(children: [
-              Container(
-                child: Text(
-                  flashcardData["word"],
-                  style: TextStyle(fontSize: 15),
-                ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    flashcardData["word"],
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  if (flashcardData["favorite"] == true) ...[
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                      child: FaIcon(
+                        FontAwesomeIcons.solidBookmark,
+                        color: Color.fromARGB(255, 228, 219, 118),
+                        size: 20,
+                      ),
+                    )
+                  ],
+                ],
+              ),
+              Text(
+                tags,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               )
-            ]),
-            Text(
-              tags,
-              style: TextStyle(fontSize: 10, color: Colors.grey),
-            )
-          ]),
+            ],
+          ),
+          const FaIcon(
+            FontAwesomeIcons.chevronRight,
+            color: Color.fromARGB(255, 215, 215, 215),
+            size: 14,
+          )
+        ],
+      ),
     );
   }
 }
