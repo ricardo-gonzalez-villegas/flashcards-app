@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashcards_app/screens/create_screen.dart';
 import 'package:flashcards_app/screens/flashcard_info_screen.dart';
 import 'package:flashcards_app/screens/home_screen.dart';
+import 'package:flashcards_app/screens/settings_screen.dart';
 import 'package:flashcards_app/utils/screensize_reducer.dart';
 import 'package:flashcards_app/widgets/flashcard_tile.dart';
 import 'package:flutter/material.dart';
@@ -62,6 +63,15 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => const UserCollectionScreen(),
+          ),
+        );
+        break;
+
+      case 4:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SettingsScreen(),
           ),
         );
         break;

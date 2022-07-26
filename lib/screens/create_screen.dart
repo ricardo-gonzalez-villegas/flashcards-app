@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flashcards_app/screens/settings_screen.dart';
 import 'package:flashcards_app/screens/user_collection_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -63,6 +64,15 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => const UserCollectionScreen(),
+          ),
+        );
+        break;
+
+      case 4:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SettingsScreen(),
           ),
         );
         break;

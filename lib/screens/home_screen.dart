@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flashcards_app/screens/settings_screen.dart';
 import 'package:flashcards_app/screens/user_collection_screen.dart';
 import 'package:flashcards_app/screens/create_screen.dart';
 import 'package:flashcards_app/screens/signin_screen.dart';
@@ -12,6 +14,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String _userId = FirebaseAuth.instance.currentUser!.uid;
+  String _username = "";
+
   void _onTapped(int index) {
     switch (index) {
       case 0:
@@ -49,11 +54,21 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
         break;
+
+      case 4:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SettingsScreen(),
+          ),
+        );
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print(_userId);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -91,47 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
         currentIndex: 0,
         onTap: _onTapped,
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ElevatedButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut().then(
-                (value) {
-                  print("Signed Out");
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: ((context) => const SignInScreen()),
-                    ),
-                  );
-                },
-              );
-            },
-            child: const Text('Sign Out'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: ((context) => const CreateFlashcardScreen()),
-                ),
-              );
-            },
-            child: const Text("Add Flashcard"),
-          ),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const UserCollectionScreen()),
-                );
-              },
-              child: const Text("View Collection"))
-        ],
-      ),
+      body: Text("Welcome"),
     );
   }
 }
