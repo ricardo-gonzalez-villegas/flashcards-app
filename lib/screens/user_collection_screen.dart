@@ -19,7 +19,7 @@ class UserCollectionScreen extends StatefulWidget {
 }
 
 class _UserCollectionScreenState extends State<UserCollectionScreen> {
-  final String? _userId = FirebaseAuth.instance.currentUser?.uid;
+  final String _userId = FirebaseAuth.instance.currentUser!.uid;
   late Stream<QuerySnapshot> _flashcardsStream = FirebaseFirestore.instance
       .collection("flashcards")
       .where("user_id", isEqualTo: _userId)
