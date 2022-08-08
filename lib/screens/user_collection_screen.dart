@@ -2,11 +2,9 @@ import 'dart:async';
 import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flashcards_app/screens/create_screen.dart';
 import 'package:flashcards_app/screens/flashcard_info_screen.dart';
-import 'package:flashcards_app/screens/home_screen.dart';
-import 'package:flashcards_app/screens/settings_screen.dart';
 import 'package:flashcards_app/utils/screensize_reducer.dart';
+import 'package:flashcards_app/widgets/bottom_nav_bar.dart';
 import 'package:flashcards_app/widgets/flashcard_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -28,55 +26,6 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
   String _dropdownValue = "All";
   final _items = ["All", "Favorites"];
   Timer? _stoppedTyping;
-
-  void _onTapped(int index) {
-    switch (index) {
-      case 0:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
-          ),
-        );
-        break;
-
-      case 1:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
-          ),
-        );
-        break;
-
-      case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const CreateFlashcardScreen(),
-          ),
-        );
-        break;
-
-      case 3:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const UserCollectionScreen(),
-          ),
-        );
-        break;
-
-      case 4:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const SettingsScreen(),
-          ),
-        );
-        break;
-    }
-  }
 
   void _onChangeHandler() {
     const duration = Duration(milliseconds: 1000); //
@@ -163,37 +112,7 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Home',
-            backgroundColor: Color.fromARGB(255, 84, 132, 235),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book_rounded),
-            label: 'Study',
-            backgroundColor: Color.fromARGB(255, 84, 132, 235),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_box),
-            label: 'Add',
-            backgroundColor: Color.fromARGB(255, 84, 132, 235),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list_rounded),
-            label: 'Collection',
-            backgroundColor: Color.fromARGB(255, 84, 132, 235),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-            backgroundColor: Color.fromARGB(255, 84, 132, 235),
-          ),
-        ],
-        currentIndex: 3,
-        onTap: _onTapped,
-      ),
+      bottomNavigationBar: const BottomNavBar(currentIndex: 3),
       body: SizedBox(
         width: screenWidth(context),
         child: Column(
