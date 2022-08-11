@@ -16,6 +16,7 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
   final TextEditingController _tagsController = TextEditingController();
   final CollectionReference _flashcardsCollection =
       FirebaseFirestore.instance.collection("flashcards");
+  Timestamp timeStamp = Timestamp.fromDate(DateTime.now());
   final FocusNode _focusNode = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _snackBar = const SnackBar(content: Text("Sucessfully Added"));
@@ -86,10 +87,11 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
                         .toUpperCase()
                         .replaceAll(RegExp(' '), '')
                         .split(','),
-                    "times_missed": 0,
-                    "times_correct": 0,
-                    "times_studied": 0,
-                    "favorite": false
+                    "missed": 0,
+                    "correct": 0,
+                    "studied": 0,
+                    "favorite": false,
+                    "created_at": timeStamp,
                   }).then((value) {
                     DocumentReference doc = FirebaseFirestore.instance
                         .collection("flashcards")

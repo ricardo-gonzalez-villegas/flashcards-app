@@ -28,7 +28,7 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   void _updateSignedInTime() {
-    userDocument.update({'signed_in': timeStamp});
+    userDocument.update({'signed_in_at': timeStamp});
   }
 
   void _getDocumentId(CollectionReference users, String userId) {

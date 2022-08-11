@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flashcards_app/screens/manage_tags_screen.dart';
 import 'package:flashcards_app/utils/screensize_reducer.dart';
 import 'package:flashcards_app/widgets/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
@@ -35,12 +36,32 @@ class WelcomeText extends StatefulWidget {
 }
 
 class _WelcomeTextState extends State<WelcomeText> {
-  final String _userId = FirebaseAuth.instance.currentUser!.uid;
-
-  late final Stream<QuerySnapshot> _userDataStream = FirebaseFirestore.instance
+  final Stream<QuerySnapshot> _userDataStream = FirebaseFirestore.instance
       .collection("users")
-      .where("id", isEqualTo: _userId)
+      .where("id", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
       .snapshots();
+
+  late int? _totalFlashcards;
+
+  @override
+  void initState() {
+    _getTotalFlashcards();
+    super.initState();
+  }
+
+  void _getTotalFlashcards() {
+    FirebaseFirestore.instance
+        .collection('flashcards')
+        .where("user_id", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then(
+      ((flashcards) {
+        setState(() {
+          _totalFlashcards = flashcards.docs.length;
+        });
+      }),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,26 +69,48 @@ class _WelcomeTextState extends State<WelcomeText> {
       stream: _userDataStream,
       builder: (BuildContext context,
           AsyncSnapshot<QuerySnapshot> userDataSnapshot) {
-        List userDataList = userDataSnapshot.data!.docs.toList();
-        var userData = userDataList[0];
+        if (userDataSnapshot.connectionState == ConnectionState.waiting) {
+          return const Text("No Connection");
+        } else if (userDataSnapshot.connectionState == ConnectionState.active ||
+            userDataSnapshot.connectionState == ConnectionState.done) {
+          if (userDataSnapshot.hasError) {
+            return const Text('Error');
+          } else if (userDataSnapshot.hasData) {
+            if (userDataSnapshot.hasData) {
+              List userDataList = userDataSnapshot.data!.docs.toList();
+              var userData = userDataList[0];
 
-        if (userDataList.isEmpty) {
-          return const Text("No Data");
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Welcome back, ${userData["username"]}.'),
+                  const Text("There are _ flashcards to study today."),
+                  Text(
+                    'There are $_totalFlashcards flashcards in your collection.',
+                  ),
+                  GestureDetector(
+                    child: button(
+                        context, "Tags", "Manage", Icons.tag, Colors.blue),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ManageTagsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  button(context, "Lists", "Manage", Icons.list, Colors.yellow),
+                ],
+              );
+            }
+          } else {
+            return const Text('Empty data');
+          }
+        } else {
+          return Text('State: ${userDataSnapshot.connectionState}');
         }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Welcome back, ${userData["username"]}.'),
-            const Text("It's been _ days since you last logged in."),
-            const Text("There are _ flashcards to study today."),
-            Text(
-              'There are ${userData["total_flashcards"]} flashcards in your collection.',
-            ),
-            button(context, "Tags", "Manage", Icons.tag, Colors.blue),
-            button(context, "Lists", "Manage", Icons.list, Colors.yellow),
-          ],
-        );
+        throw Error();
       },
     );
   }

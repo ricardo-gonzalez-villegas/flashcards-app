@@ -114,11 +114,10 @@ class Stats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String timesStudied = data["times_studied"].toString();
-    String timesCorrect = data["times_correct"].toString();
-    String timesMissed = data["times_missed"].toString();
-    String percent =
-        ((data["times_correct"] / data["times_studied"]) * 100.0).toString();
+    String timesStudied = data["studied"].toString();
+    String timesCorrect = data["correct"].toString();
+    String timesMissed = data["missed"].toString();
+    String percent = ((data["correct"] / data["studied"]) * 100.0).toString();
     String overallScore = timesStudied == "0" ? "100.0%" : "$percent%";
 
     return Column(children: [
