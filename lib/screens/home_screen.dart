@@ -41,7 +41,7 @@ class _WelcomeTextState extends State<WelcomeText> {
       .where("id", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
       .snapshots();
 
-  late int? _totalFlashcards;
+  int? _totalFlashcards;
 
   @override
   void initState() {
