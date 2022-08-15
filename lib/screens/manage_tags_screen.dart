@@ -1,6 +1,8 @@
+import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../widgets/bottom_nav_bar.dart';
 
 class ManageTagsScreen extends StatefulWidget {
@@ -19,7 +21,10 @@ class _ManageTagsScreenState extends State<ManageTagsScreen> {
         title: const Text("Tags"),
       ),
       bottomNavigationBar: const BottomNavBar(currentIndex: 0),
-      body: Column(children: const [CreateTagForm()]),
+      body: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [CreateTagForm(), TagsListDisplay()]),
     );
   }
 }
@@ -50,6 +55,7 @@ class _CreateTagFormState extends State<CreateTagForm> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
+      flex: 1,
       child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -71,6 +77,7 @@ class _CreateTagFormState extends State<CreateTagForm> {
             ),
             Expanded(
               flex: 3,
+              //reformart elevated button into container button
               child: Container(
                 margin: const EdgeInsets.fromLTRB(0, 0, 20, 0),
                 child: ElevatedButton(
@@ -83,31 +90,109 @@ class _CreateTagFormState extends State<CreateTagForm> {
   }
 }
 
-TextField reusableTextField(String text, IconData icon, bool isPassword,
-    TextEditingController controller) {
-  return TextField(
-    controller: controller,
-    obscureText: isPassword,
-    enableSuggestions: !isPassword,
-    autocorrect: !isPassword,
-    decoration: InputDecoration(
-      prefixIcon: Icon(icon),
-      labelText: text,
-      filled: true,
-    ),
-    keyboardType:
-        isPassword ? TextInputType.visiblePassword : TextInputType.emailAddress,
-  );
+class TagsListDisplay extends StatefulWidget {
+  const TagsListDisplay({Key? key}) : super(key: key);
+
+  @override
+  State<TagsListDisplay> createState() => _TagsListDisplayState();
 }
 
-// class TagsDisplay extends StatefulWidget {
-//   const TagsDisplay({Key? key}) : super(key: key);
+class _TagsListDisplayState extends State<TagsListDisplay> {
+  final Stream<QuerySnapshot> _tagsStream = FirebaseFirestore.instance
+      .collection("tags")
+      .where("user_id", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+      .snapshots();
 
-//   @override
-//   State<TagsDisplay> createState() => _TagsDisplayState();
-// }
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: _tagsStream,
+      builder:
+          (BuildContext context, AsyncSnapshot<QuerySnapshot> tagsSnapshot) {
+        if (tagsSnapshot.connectionState == ConnectionState.waiting) {
+          return const Text('Loading...',
+              style: TextStyle(fontSize: 17, color: Colors.white));
+        }
+        List tagsList = tagsSnapshot.data!.docs.toList();
+        if (tagsList.isEmpty) {
+          return const Text(
+            "No results.",
+            style: TextStyle(fontSize: 17, color: Colors.white),
+          );
+        }
 
-// class _TagsDisplayState extends State<TagsDisplay> {
-//   @override
-//   Widget build(BuildContext context) {}
-// }
+        return Expanded(
+          flex: 7,
+          child: ListView.builder(
+              itemCount: tagsList.length,
+              itemBuilder: (context, index) {
+                LinkedHashMap<String, dynamic> tagData = tagsList[index].data();
+                return tagTile(
+                    context,
+                    tagData["tag_name"],
+                    tagData["flashcard_ids"],
+                    Icons.tag_sharp,
+                    const Color.fromARGB(255, 76, 104, 175));
+              }),
+        );
+      },
+    );
+  }
+}
+
+Container tagTile(BuildContext context, String tag, List flashcards,
+    IconData icon, Color color) {
+  return Container(
+    margin: const EdgeInsets.fromLTRB(10, 20, 10, 0),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(8),
+      color: Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: const Color.fromARGB(255, 39, 38, 38).withOpacity(0.5),
+          spreadRadius: 2,
+          blurRadius: 5,
+        )
+      ],
+    ),
+    height: 100,
+    child: Row(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: color,
+          ),
+          margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+          width: 50,
+          height: 50,
+          child: Center(
+              child: FaIcon(
+            icon,
+            color: Colors.black38,
+          )),
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              tag,
+              style: const TextStyle(
+                  fontSize: 18,
+                  color: Color.fromARGB(255, 138, 138, 138),
+                  fontWeight: FontWeight.bold),
+            ),
+            Text(
+              'Flashcards with tag: ${flashcards.length.toString()}',
+              style: const TextStyle(
+                  color: Color.fromARGB(255, 95, 94, 94),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500),
+            )
+          ],
+        )
+      ],
+    ),
+  );
+}
