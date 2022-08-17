@@ -17,7 +17,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _emailController = TextEditingController();
   final CollectionReference _usersCollection =
       FirebaseFirestore.instance.collection("users");
-  Timestamp timeStamp = Timestamp.fromDate(DateTime.now());
+  final Timestamp timeStamp = Timestamp.fromDate(DateTime.now());
 
   @override
   Widget build(BuildContext context) {
