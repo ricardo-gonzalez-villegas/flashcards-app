@@ -1,7 +1,6 @@
 import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flashcards_app/utils/screensize_reducer.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../widgets/bottom_nav_bar.dart';
@@ -26,7 +25,7 @@ class _ManageTagsScreenState extends State<ManageTagsScreen> {
       body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [CreateTagForm(), TagsListDisplay()]),
+          children: const [CreateTagForm(), TagsDisplay()]),
     );
   }
 }
@@ -116,14 +115,14 @@ class _CreateTagFormState extends State<CreateTagForm> {
   }
 }
 
-class TagsListDisplay extends StatefulWidget {
-  const TagsListDisplay({Key? key}) : super(key: key);
+class TagsDisplay extends StatefulWidget {
+  const TagsDisplay({Key? key}) : super(key: key);
 
   @override
-  State<TagsListDisplay> createState() => _TagsListDisplayState();
+  State<TagsDisplay> createState() => _TagsDisplayState();
 }
 
-class _TagsListDisplayState extends State<TagsListDisplay> {
+class _TagsDisplayState extends State<TagsDisplay> {
   final Stream<QuerySnapshot> _tagsStream = FirebaseFirestore.instance
       .collection("tags")
       .where("user_id", isEqualTo: FirebaseAuth.instance.currentUser!.uid)

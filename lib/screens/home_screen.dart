@@ -6,6 +6,8 @@ import 'package:flashcards_app/widgets/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'manage_lists_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -100,7 +102,18 @@ class _WelcomeTextState extends State<WelcomeText> {
                       );
                     },
                   ),
-                  button(context, "Lists", "Manage", Icons.list, Colors.yellow),
+                  GestureDetector(
+                    child: button(
+                        context, "Lists", "Manage", Icons.list, Colors.yellow),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ManageListsScreen(),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               );
             }
