@@ -14,12 +14,18 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
   final TextEditingController _wordController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _tagsController = TextEditingController();
+
   final CollectionReference _flashcardsCollection =
       FirebaseFirestore.instance.collection("flashcards");
   Timestamp timeStamp = Timestamp.fromDate(DateTime.now());
+
   final FocusNode _focusNode = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _snackBar = const SnackBar(content: Text("Sucessfully Added"));
+
+  List<String> _lists = [];
+  List<String> _tags = [];
+  String? _dropdownValue;
 
   void _clearFields() {
     _wordController.clear();
@@ -29,13 +35,62 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _getLists();
+    _getTags();
+  }
+
+  void _setLists(List<String> items) {
+    setState(() {
+      _lists = items;
+      _dropdownValue = items[0];
+    });
+  }
+
+  void _getLists() {
+    FirebaseFirestore.instance
+        .collection('lists')
+        .where("user_id", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then(
+      ((listItems) {
+        List<String> items = [];
+        for (var listItem in listItems.docs) {
+          setState(() {
+            items.add(listItem["list_name"]);
+          });
+        }
+        _setLists(items);
+      }),
+    );
+  }
+
+  void _getTags() {
+    FirebaseFirestore.instance
+        .collection('tags')
+        .where("user_id", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then(
+      ((tagItems) {
+        for (var tagItem in tagItems.docs) {
+          setState(() {
+            _tags.add(tagItem["tag_name"]);
+          });
+        }
+      }),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: Form(
         key: _formKey,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            //Word Input
             TextFormField(
               focusNode: _focusNode,
               autofocus: true,
@@ -53,29 +108,40 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
                 floatingLabelBehavior: FloatingLabelBehavior.never,
               ),
             ),
-            Container(
-              margin: const EdgeInsets.all(40),
-              child: TextFormField(
-                  controller: _descriptionController,
-                  maxLines: 8,
-                  maxLength: 300,
-                  validator: ((value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter text.';
-                    }
-                    return null;
-                  }),
-                  decoration: const InputDecoration(
-                    labelText: "Description",
-                    floatingLabelBehavior: FloatingLabelBehavior.never,
-                  )),
-            ),
+            //Description Input
             TextFormField(
-                controller: _tagsController,
+                controller: _descriptionController,
+                maxLines: 8,
+                maxLength: 300,
+                validator: ((value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter text.';
+                  }
+                  return null;
+                }),
                 decoration: const InputDecoration(
-                  labelText: "Tags",
+                  labelText: "Description",
                   floatingLabelBehavior: FloatingLabelBehavior.never,
                 )),
+
+            if (_lists.isNotEmpty) ...[
+              DropdownButton<String>(
+                value: _dropdownValue,
+                icon: const Icon(Icons.arrow_downward),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _dropdownValue = newValue!;
+                  });
+                },
+                items: _lists.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              )
+            ],
+
             ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {

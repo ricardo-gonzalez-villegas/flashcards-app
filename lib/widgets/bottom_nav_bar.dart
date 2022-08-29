@@ -92,7 +92,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
           backgroundColor: Color.fromARGB(255, 84, 132, 235),
         ),
       ],
-      currentIndex: 0,
+      currentIndex: widget.currentIndex,
       onTap: _onTapped,
     );
   }

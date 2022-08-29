@@ -227,7 +227,7 @@ Container listTile(BuildContext context, String list, List flashcards,
                   fontWeight: FontWeight.bold),
             ),
             Text(
-              'Flashcards in list: ${flashcards.length.toString()}',
+              'Flashcards: ${flashcards.length.toString()}',
               style: const TextStyle(
                   color: Color.fromARGB(255, 95, 94, 94),
                   fontSize: 16,
