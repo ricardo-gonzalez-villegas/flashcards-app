@@ -56,7 +56,7 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
           _flashcardsStream = FirebaseFirestore.instance
               .collection("flashcards")
               .where("user_id", isEqualTo: _userId)
-              .where("tags", arrayContains: tagFilter.toUpperCase())
+              .where("tag", isEqualTo: tagFilter.toUpperCase())
               .snapshots();
         } else {
           _flashcardsStream = FirebaseFirestore.instance
@@ -82,7 +82,7 @@ class _UserCollectionScreenState extends State<UserCollectionScreen> {
           _flashcardsStream = FirebaseFirestore.instance
               .collection("flashcards")
               .where("user_id", isEqualTo: _userId)
-              .where("tags", arrayContains: tagFilter.toUpperCase())
+              .where("tag", isEqualTo: tagFilter.toUpperCase())
               .where("favorite", isEqualTo: true)
               .snapshots();
         } else {

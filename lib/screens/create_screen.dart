@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashcards_app/widgets/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 class CreateFlashcardScreen extends StatefulWidget {
   const CreateFlashcardScreen({Key? key}) : super(key: key);
@@ -25,7 +26,8 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
 
   List<String> _lists = [];
   List<String> _tags = [];
-  String? _dropdownValue;
+  String? _listsDropdownValue;
+  String? _tagsDropdownValue;
 
   void _clearFields() {
     _wordController.clear();
@@ -44,7 +46,14 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
   void _setLists(List<String> items) {
     setState(() {
       _lists = items;
-      _dropdownValue = items[0];
+      _listsDropdownValue = items[0];
+    });
+  }
+
+  void _setTags(List<String> items) {
+    setState(() {
+      _tags = items;
+      _tagsDropdownValue = items[0];
     });
   }
 
@@ -57,10 +66,13 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
       ((listItems) {
         List<String> items = [];
         for (var listItem in listItems.docs) {
-          setState(() {
-            items.add(listItem["list_name"]);
-          });
+          setState(
+            () {
+              items.add(listItem["list_name"]);
+            },
+          );
         }
+        items.sort();
         _setLists(items);
       }),
     );
@@ -73,11 +85,16 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
         .get()
         .then(
       ((tagItems) {
+        List<String> items = [];
         for (var tagItem in tagItems.docs) {
-          setState(() {
-            _tags.add(tagItem["tag_name"]);
-          });
+          setState(
+            () {
+              items.add(tagItem["tag_name"]);
+            },
+          );
         }
+        items.sort();
+        _setTags(items);
       }),
     );
   }
@@ -110,27 +127,27 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
             ),
             //Description Input
             TextFormField(
-                controller: _descriptionController,
-                maxLines: 8,
-                maxLength: 300,
-                validator: ((value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter text.';
-                  }
-                  return null;
-                }),
-                decoration: const InputDecoration(
-                  labelText: "Description",
-                  floatingLabelBehavior: FloatingLabelBehavior.never,
-                )),
-
+              controller: _descriptionController,
+              maxLines: 8,
+              maxLength: 300,
+              validator: ((value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter text.';
+                }
+                return null;
+              }),
+              decoration: const InputDecoration(
+                labelText: "Description",
+                floatingLabelBehavior: FloatingLabelBehavior.never,
+              ),
+            ),
             if (_lists.isNotEmpty) ...[
               DropdownButton<String>(
-                value: _dropdownValue,
+                value: _listsDropdownValue,
                 icon: const Icon(Icons.arrow_downward),
                 onChanged: (String? newValue) {
                   setState(() {
-                    _dropdownValue = newValue!;
+                    _listsDropdownValue = newValue!;
                   });
                 },
                 items: _lists.map<DropdownMenuItem<String>>((String value) {
@@ -142,27 +159,44 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
               )
             ],
 
+            if (_tags.isNotEmpty) ...[
+              DropdownButton<String>(
+                value: _tagsDropdownValue,
+                icon: const Icon(Icons.arrow_downward),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _tagsDropdownValue = newValue!;
+                  });
+                },
+                items: _tags.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              )
+            ],
+
+            //add two tag dropdowns in a row
+
             ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  _flashcardsCollection.add({
+                  var uuid = const Uuid().v4();
+
+                  _flashcardsCollection.doc(uuid).set({
+                    "id": uuid,
                     "user_id": FirebaseAuth.instance.currentUser?.uid,
                     "word": _wordController.text.toUpperCase(),
                     "description": _descriptionController.text,
-                    "tags": _tagsController.text
-                        .toUpperCase()
-                        .replaceAll(RegExp(' '), '')
-                        .split(','),
+                    "tag": _tagsDropdownValue,
+                    "list": _listsDropdownValue,
                     "missed": 0,
                     "correct": 0,
                     "studied": 0,
                     "favorite": false,
                     "created_at": timeStamp,
                   }).then((value) {
-                    DocumentReference doc = FirebaseFirestore.instance
-                        .collection("flashcards")
-                        .doc(value.id);
-                    doc.update({"document_id": value.id});
                     _clearFields();
                     ScaffoldMessenger.of(context).showSnackBar(_snackBar);
                   });

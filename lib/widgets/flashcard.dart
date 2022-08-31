@@ -17,7 +17,7 @@ class _FlashcardState extends State<Flashcard> {
   late bool _favorite = widget.data["favorite"];
   late final DocumentReference flashcardDoc = FirebaseFirestore.instance
       .collection("flashcards")
-      .doc(widget.data["document_id"]);
+      .doc(widget.data["id"]);
 
   void _updateFavorite() {
     setState(() {

@@ -9,14 +9,9 @@ class FlashcardTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List? tagsList;
-    String tags = "Tags: ";
-    if (flashcardData["tags"] != null) {
-      tagsList = flashcardData["tags"];
-      for (var i = 0; i < tagsList!.length; i++) {
-        tags += '${tagsList[i]}, ';
-      }
-      tags = tags.substring(0, tags.length - 2);
+    String tag = "Tag: ";
+    if (flashcardData["tag"] != null) {
+      tag += flashcardData["tag"];
     }
 
     return Container(
@@ -57,7 +52,7 @@ class FlashcardTile extends StatelessWidget {
                 ],
               ),
               Text(
-                tags,
+                tag,
                 style: const TextStyle(fontSize: 12, color: Colors.grey),
               )
             ],
