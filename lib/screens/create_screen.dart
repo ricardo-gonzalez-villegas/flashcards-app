@@ -250,8 +250,6 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
                     "user_id": FirebaseAuth.instance.currentUser?.uid,
                     "word": _wordController.text.toUpperCase(),
                     "description": _descriptionController.text,
-                    "tag": _tagsDropdownValue,
-                    "list": _listsDropdownValue,
                     "missed": 0,
                     "correct": 0,
                     "studied": 0,

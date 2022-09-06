@@ -44,10 +44,14 @@ class _WelcomeTextState extends State<WelcomeText> {
       .snapshots();
 
   int? _totalFlashcards;
+  late int _totalTags = 0;
+  late int _totalLists = 0;
 
   @override
   void initState() {
     _getTotalFlashcards();
+    _getTagsTotal();
+    _getListsTotal();
     super.initState();
   }
 
@@ -60,6 +64,34 @@ class _WelcomeTextState extends State<WelcomeText> {
       ((flashcards) {
         setState(() {
           _totalFlashcards = flashcards.docs.length;
+        });
+      }),
+    );
+  }
+
+  void _getTagsTotal() {
+    FirebaseFirestore.instance
+        .collection('tags')
+        .where("user_id", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then(
+      ((tags) {
+        setState(() {
+          _totalTags = tags.docs.length;
+        });
+      }),
+    );
+  }
+
+  void _getListsTotal() {
+    FirebaseFirestore.instance
+        .collection('lists')
+        .where("user_id", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then(
+      ((lists) {
+        setState(() {
+          _totalLists = lists.docs.length;
         });
       }),
     );
@@ -91,8 +123,8 @@ class _WelcomeTextState extends State<WelcomeText> {
                     'There are $_totalFlashcards flashcards in your collection.',
                   ),
                   GestureDetector(
-                    child: button(
-                        context, "Tags", "Manage", Icons.tag, Colors.blue),
+                    child: button(context, "Tags - $_totalTags", "Manage",
+                        Icons.tag, Colors.blue),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -103,8 +135,8 @@ class _WelcomeTextState extends State<WelcomeText> {
                     },
                   ),
                   GestureDetector(
-                    child: button(
-                        context, "Lists", "Manage", Icons.list, Colors.yellow),
+                    child: button(context, "Lists - $_totalLists", "Manage",
+                        Icons.list, Colors.yellow),
                     onTap: () {
                       Navigator.push(
                         context,
