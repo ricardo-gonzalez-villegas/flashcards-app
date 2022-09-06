@@ -28,6 +28,8 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
   List<String> _tags = [];
   String? _listsDropdownValue;
   String? _tagsDropdownValue;
+  Map _listMap = <String, String>{};
+  Map _tagMap = <String, String>{};
 
   void _clearFields() {
     _wordController.clear();
@@ -57,6 +59,18 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
     });
   }
 
+  void _setListMap(Map listMap) {
+    setState(() {
+      _listMap = listMap;
+    });
+  }
+
+  void _setTagMap(Map tagMap) {
+    setState(() {
+      _tagMap = tagMap;
+    });
+  }
+
   void _getLists() {
     FirebaseFirestore.instance
         .collection('lists')
@@ -65,14 +79,17 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
         .then(
       ((listItems) {
         List<String> items = [];
+        Map lists = <String, String>{};
         for (var listItem in listItems.docs) {
           setState(
             () {
               items.add(listItem["list_name"]);
+              lists[listItem["list_name"]] = listItem["id"];
             },
           );
         }
         items.sort();
+        _setListMap(lists);
         _setLists(items);
       }),
     );
@@ -86,17 +103,64 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
         .then(
       ((tagItems) {
         List<String> items = [];
+        Map tags = <String, String>{};
         for (var tagItem in tagItems.docs) {
           setState(
             () {
               items.add(tagItem["tag_name"]);
+              tags[tagItem["tag_name"]] = tagItem["id"];
             },
           );
         }
         items.sort();
         _setTags(items);
+        _setTagMap(tags);
       }),
     );
+  }
+
+  void _updateListFlashcardIds(String flashcardId) {
+    List<dynamic> flashcardIds = [];
+
+    FirebaseFirestore.instance
+        .collection("lists")
+        .doc(_listMap[_listsDropdownValue])
+        .get()
+        .then(
+          (ids) => {
+            flashcardIds = ids["flashcard_ids"],
+          },
+        )
+        .then(
+          (value) => {
+            flashcardIds.add(flashcardId),
+            FirebaseFirestore.instance
+                .collection("lists")
+                .doc(_listMap[_listsDropdownValue])
+                .update({"flashcard_ids": flashcardIds})
+          },
+        );
+  }
+
+  void _updateTagFlashcardIds(String flashcardId) {
+    List<dynamic> flashcardIds = [];
+
+    FirebaseFirestore.instance
+        .collection("tags")
+        .doc(_tagMap[_tagsDropdownValue])
+        .get()
+        .then(
+          (ids) => {
+            flashcardIds = ids["flashcard_ids"],
+          },
+        )
+        .then((value) => {
+              flashcardIds.add(flashcardId),
+              FirebaseFirestore.instance
+                  .collection("tags")
+                  .doc(_tagMap[_tagsDropdownValue])
+                  .update({"flashcard_ids": flashcardIds}),
+            });
   }
 
   @override
@@ -176,9 +240,6 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
                 }).toList(),
               )
             ],
-
-            //add two tag dropdowns in a row
-
             ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
@@ -199,6 +260,9 @@ class _CreateFlashcardScreenState extends State<CreateFlashcardScreen> {
                   }).then((value) {
                     _clearFields();
                     ScaffoldMessenger.of(context).showSnackBar(_snackBar);
+
+                    _updateListFlashcardIds(uuid);
+                    _updateTagFlashcardIds(uuid);
                   });
                 }
               },
